@@ -24,7 +24,7 @@ if 'USE_HTTPS' in os.environ:
                 pass
             else: raise
         # Generate a certificate if one doesn't exist on disk
-        subprocess.check_call(['openssl', 'req', '-new', 
+        subprocess.check_call(['openssl', 'req', '-new',
             '-newkey', 'rsa:2048', '-days', '365', '-nodes', '-x509',
             '-subj', '/C=XX/ST=XX/L=XX/O=generated/CN=generated',
             '-keyout', PEM_FILE, '-out', PEM_FILE])

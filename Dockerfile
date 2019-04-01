@@ -46,6 +46,7 @@ CMD ["start-notebook.sh"]
 
 USER rdd
 
+ENV PATH=$PATH:/home/${NB_USER}/.local/bin
 # Setup rdd home directory
 RUN mkdir /home/$NB_USER/work && \
     mkdir /home/$NB_USER/.jupyter && \
@@ -54,6 +55,6 @@ RUN mkdir /home/$NB_USER/work && \
 
 COPY requirements.txt /home/$NB_USER/
 # Install Jupyter notebook as rdd
-RUN cd /home/$NB_USER && pip install -r requirements.txt --user
+RUN cd /home/$NB_USER && pip install -r requirements.txt --user --no-warn-script-location
 COPY jupyter_notebook_config.py /home/$NB_USER/.jupyter/
 WORKDIR /home/$NB_USER/work

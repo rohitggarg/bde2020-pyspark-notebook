@@ -8,7 +8,6 @@ RUN apk update && apk add \
     wget \
     gcc \
     g++ \
-    lapack \
     python-dev \
     freetype-dev \
     libpng-dev \
@@ -35,6 +34,16 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 RUN adduser -h /home/$NB_USER -s /bin/bash -D -u $NB_UID $NB_USER
 
+RUN apk add openblas-dev \
+    lapack \
+    gfortran
+
+# Add local files as late as possible to avoid cache busting
+COPY start-notebook.sh /usr/local/bin/
+EXPOSE 8888
+ENTRYPOINT ["tini", "--"]
+CMD ["start-notebook.sh"]
+
 USER rdd
 
 # Setup rdd home directory
@@ -46,18 +55,5 @@ RUN mkdir /home/$NB_USER/work && \
 COPY requirements.txt /home/$NB_USER/
 # Install Jupyter notebook as rdd
 RUN cd /home/$NB_USER && pip install -r requirements.txt --user
-
-# Switch back to rdd to avoid accidental container runs as root
-USER root
-
-# Add local files as late as possible to avoid cache busting
-COPY start-notebook.sh /usr/local/bin/
 COPY jupyter_notebook_config.py /home/$NB_USER/.jupyter/
-
-# Configure container startup as root
-EXPOSE 8888
 WORKDIR /home/$NB_USER/work
-ENTRYPOINT ["tini", "--"]
-CMD ["start-notebook.sh"]
-
-USER rdd

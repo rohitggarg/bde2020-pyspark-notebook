@@ -30,3 +30,4 @@ git add Dockerfile
 git commit -m "Set base version in dockerfile"
 
 git push origin $NEEDED
+git checkout master

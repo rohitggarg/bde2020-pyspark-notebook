@@ -7,7 +7,7 @@ if [ -z "$BRANCH" ]
     exit 1
 fi
 
-if [ "$BRANCH" -ne "master" ]
+if [ "$BRANCH" != "master" ]
   then
     echo "Create new tags from master only"
     exit 2
@@ -29,5 +29,5 @@ cat Dockerfile.template >> Dockerfile
 git add Dockerfile
 git commit -m "Set base version in dockerfile"
 
-git push origin $NEEDED
+git push -f origin $NEEDED
 git checkout master

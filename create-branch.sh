@@ -14,7 +14,8 @@ if [ "$BRANCH" != "master" ]
 fi
 if [ -z "$1" ]
   then
-    echo "Specify the branch to create"
+    echo "Usage:"
+    echo "  create-branch.sh <branch_name>"
     exit 1
 fi
 
@@ -23,8 +24,7 @@ echo "On branch -> $BRANCH"
 echo "Making branch -> $NEEDED"
 git branch $NEEDED && git checkout $NEEDED
 
-echo "FROM bde2020/spark-base:${NEEDED}" > Dockerfile
-cat Dockerfile.template >> Dockerfile
+render-template.sh latest
 
 git add Dockerfile
 git commit -m "Set base version in dockerfile"

@@ -19,8 +19,8 @@ RUN apk update && apk add \
     openssl
 
 # Install Tini
-RUN wget --quiet https://github.com/krallin/tini/releases/download/v0.18.0/tini-amd64 && \
-    mv tini-amd64 /usr/local/bin/tini && \
+RUN wget --quiet https://github.com/krallin/tini/releases/download/v0.18.0/tini-muslc-amd64 && \
+    mv tini-muslc-amd64 /usr/local/bin/tini && \
     chmod +x /usr/local/bin/tini
 
 ENV PYTHONPATH $SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.9-src.zip

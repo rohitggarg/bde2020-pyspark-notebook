@@ -36,12 +36,6 @@ RUN apk add openblas-dev \
     lapack \
     gfortran
 
-# Add local files as late as possible to avoid cache busting
-COPY start-notebook.sh /usr/local/bin/
-EXPOSE 8888
-ENTRYPOINT ["tini", "--"]
-CMD ["start-notebook.sh"]
-
 USER rdd
 
 ENV PATH=$PATH:/home/${NB_USER}/.local/bin
@@ -56,3 +50,12 @@ COPY requirements.txt /home/$NB_USER/
 RUN cd /home/$NB_USER && pip install -r requirements.txt --user --no-warn-script-location
 COPY jupyter_notebook_config.py /home/$NB_USER/.jupyter/
 WORKDIR /home/$NB_USER/work
+
+# Add local files as late as possible to avoid cache busting
+USER root
+COPY start-notebook.sh /usr/local/bin/
+EXPOSE 8888
+ENTRYPOINT ["tini", "--", "start-notebook.sh"]
+CMD ["--ip", "0.0.0.0"]
+
+USER rdd

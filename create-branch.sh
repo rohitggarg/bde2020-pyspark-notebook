@@ -24,7 +24,7 @@ echo "On branch -> $BRANCH"
 echo "Making branch -> $NEEDED"
 git branch $NEEDED && git checkout $NEEDED
 
-render-template.sh latest
+./render-template.sh latest
 
 git add Dockerfile
 git commit -m "Set base version in dockerfile"

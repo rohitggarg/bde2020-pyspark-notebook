@@ -1,10 +1,7 @@
-BRANCHES=`git branch`
+BRANCHES=`git branch | grep -v master`
 
 for branch in $BRANCHES
   do
-  if [ "master" != "$branch" ]
-    then
-      git branch -D $branch
-      sh create-branch.sh $branch
-  fi
+    git branch -D $branch
+    sh create-branch.sh $branch
 done

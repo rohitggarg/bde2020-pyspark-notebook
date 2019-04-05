@@ -1,63 +1,27 @@
-FROM bde2020/spark-base:latest
+FROM jupyter/scipy-notebook
 
-RUN apk update && apk add \
-    jq \
-    git \
-    vim \
-    emacs \
-    wget \
-    gcc \
-    g++ \
-    python-dev \
-    freetype-dev \
-    libpng-dev \
-    linux-headers \
-    ca-certificates \
-    bzip2 \
-    unzip \
-    sudo \
-    openssl
+USER root
 
-# Install Tini
-RUN wget --quiet https://github.com/krallin/tini/releases/download/v0.18.0/tini-muslc-amd64 && \
-    mv tini-muslc-amd64 /usr/local/bin/tini && \
-    chmod +x /usr/local/bin/tini
+RUN apt-get -y update && \
+    apt-get install --no-install-recommends -y openjdk-8-jre-headless ca-certificates-java && \
+    rm -rf /var/lib/apt/lists/*
 
-ENV SPARK_HOME /spark/
+RUN cd /tmp && \
+        wget -q http://mirrors.ukfast.co.uk/sites/ftp.apache.org/spark/spark-2.4.0/spark-2.4.0-bin-hadoop3.1.tgz && \
+        tar xzf spark-2.4.0-bin-hadoop3.1.tgz -C /opt --owner root --group root --no-same-owner && \
+        rm spark-2.4.0-bin-hadoop3.1.tgz
+
+RUN cd / && ln -s /opt/spark-2.4.0-bin-hadoop3.1 spark
+
+# Spark config
+ENV SPARK_HOME /spark
 ENV PYTHONPATH $SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip
 ENV SPARK_OPTS --driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info
-ENV SHELL /bin/bash
-ENV NB_USER rdd
-ENV NB_UID 1000
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US.UTF-8
-RUN adduser -h /home/$NB_USER -s /bin/bash -D -u $NB_UID $NB_USER
 
-RUN apk add openblas-dev \
-    lapack \
-    gfortran
+USER $NB_UID
 
-USER rdd
-
-ENV PATH=$PATH:/home/${NB_USER}/.local/bin
-# Setup rdd home directory
-RUN mkdir /home/$NB_USER/work && \
-    mkdir /home/$NB_USER/.jupyter && \
-    mkdir /home/$NB_USER/.local && \
-    echo "cacert=/etc/ssl/certs/ca-certificates.crt" > /home/$NB_USER/.curlrc
-
-COPY requirements.txt /home/$NB_USER/
-# Install Jupyter notebook as rdd
-RUN cd /home/$NB_USER && pip install -r requirements.txt --user --no-warn-script-location
-COPY jupyter_notebook_config.py /home/$NB_USER/.jupyter/
-WORKDIR /home/$NB_USER/work
-
-# Add local files as late as possible to avoid cache busting
-USER root
-COPY start-notebook.sh /usr/local/bin/
-EXPOSE 8888
-ENTRYPOINT ["tini", "--", "start-notebook.sh"]
-CMD ["--ip", "0.0.0.0"]
-
-USER rdd
+# Install pyarrow
+RUN conda install --quiet -y 'pyarrow' && \
+    conda clean -tipsy && \
+    fix-permissions $CONDA_DIR && \
+    fix-permissions /home/$NB_USER

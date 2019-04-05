@@ -7,5 +7,7 @@ if [ -z "$1" ]
     exit 1
 fi
 
-echo "FROM bde2020/spark-base:${1}" > Dockerfile
-cat Dockerfile.template >> Dockerfile
+SPARK_VERSION=`echo $1 | cut -d'-' -f1`
+HADOOP_VERSION=`echo $1 | cut -d'-' -f2`
+
+cat Dockerfile.template | sed -e s/\{SPARK_VERSION\}/${SPARK_VERSION}/g | sed -e s/\{HADOOP_VERSION\}/${HADOOP_VERSION}/g > Dockerfile

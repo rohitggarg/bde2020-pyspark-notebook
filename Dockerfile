@@ -1,4 +1,4 @@
-FROM bde2020/spark-base:latest
+FROM bde2020/spark-base:2.4.0-hadoop2.7
 
 RUN apk update && apk add \
     jq \

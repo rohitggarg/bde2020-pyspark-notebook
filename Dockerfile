@@ -7,7 +7,7 @@ RUN apt-get -y update && \
     rm -rf /var/lib/apt/lists/*
 
 ENV HADOOP_URL https://www.apache.org/dist/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz
-ENV SPARK_URL http://mirrors.ukfast.co.uk/sites/ftp.apache.org/spark/spark-2.4.1/spark-2.4.1-bin-without-hadoop.tgz
+ENV SPARK_URL https://archive.apache.org/dist/spark/spark-2.4.1/spark-2.4.1-bin-without-hadoop.tgz
 RUN cd /tmp \
     && wget -q "$HADOOP_URL" \
     && tar xzf hadoop-3.2.0.tar.gz -C /opt/ \

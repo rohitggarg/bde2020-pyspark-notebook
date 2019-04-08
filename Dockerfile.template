@@ -6,12 +6,28 @@ RUN apt-get -y update && \
     apt-get install --no-install-recommends -y openjdk-8-jre-headless ca-certificates-java && \
     rm -rf /var/lib/apt/lists/*
 
-RUN cd /tmp && \
-        wget -q http://mirrors.ukfast.co.uk/sites/ftp.apache.org/spark/spark-{SPARK_VERSION}/spark-{SPARK_VERSION}-bin-{HADOOP_VERSION}.tgz && \
-        tar xzf spark-{SPARK_VERSION}-bin-{HADOOP_VERSION}.tgz -C /opt --owner root --group root --no-same-owner && \
-        rm spark-{SPARK_VERSION}-bin-{HADOOP_VERSION}.tgz
+ENV HADOOP_URL https://www.apache.org/dist/hadoop/common/hadoop-{HADOOP_VERSION}/hadoop-{HADOOP_VERSION}.tar.gz
+RUN set -x \
+    && curl -fSL "$HADOOP_URL" -o /tmp/hadoop.tar.gz \
+    && tar -xvf /tmp/hadoop.tar.gz -C /opt/ \
+    && rm /tmp/hadoop.tar.gz*
 
-RUN cd / && ln -s /opt/spark-{SPARK_VERSION}-bin-{HADOOP_VERSION} spark
+RUN ln -s /opt/hadoop-{HADOOP_VERSION}/etc/hadoop /etc/hadoop
+RUN mkdir /opt/hadoop-{HADOOP_VERSION}/logs
+
+RUN mkdir /hadoop-data
+
+ENV HADOOP_PREFIX=/opt/hadoop-{HADOOP_VERSION}
+ENV HADOOP_CONF_DIR=/etc/hadoop
+ENV MULTIHOMED_NETWORK=1
+ENV PATH $HADOOP_PREFIX/bin/:$PATH
+
+RUN cd /tmp && \
+        wget -q http://mirrors.ukfast.co.uk/sites/ftp.apache.org/spark/spark-{SPARK_VERSION}/spark-{SPARK_VERSION}-bin-without-hadoop.tgz && \
+        tar xzf spark-{SPARK_VERSION}-bin-without-hadoop.tgz -C /opt --owner root --group root --no-same-owner && \
+        rm spark-{SPARK_VERSION}-bin-without-hadoop.tgz
+
+RUN cd / && ln -s /opt/spark-{SPARK_VERSION}-bin-without-hadoop spark
 
 # Spark config
 ENV SPARK_HOME /spark

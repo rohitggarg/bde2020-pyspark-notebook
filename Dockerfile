@@ -6,12 +6,28 @@ RUN apt-get -y update && \
     apt-get install --no-install-recommends -y openjdk-8-jre-headless ca-certificates-java && \
     rm -rf /var/lib/apt/lists/*
 
-RUN cd /tmp && \
-        wget -q http://mirrors.ukfast.co.uk/sites/ftp.apache.org/spark/spark-2.4.0/spark-2.4.0-bin-hadoop3.1.tgz && \
-        tar xzf spark-2.4.0-bin-hadoop3.1.tgz -C /opt --owner root --group root --no-same-owner && \
-        rm spark-2.4.0-bin-hadoop3.1.tgz
+ENV HADOOP_URL https://www.apache.org/dist/hadoop/common/hadoop-3.1/hadoop-3.1.tar.gz
+RUN set -x \
+    && curl -fSL "$HADOOP_URL" -o /tmp/hadoop.tar.gz \
+    && tar -xvf /tmp/hadoop.tar.gz -C /opt/ \
+    && rm /tmp/hadoop.tar.gz*
 
-RUN cd / && ln -s /opt/spark-2.4.0-bin-hadoop3.1 spark
+RUN ln -s /opt/hadoop-3.1/etc/hadoop /etc/hadoop
+RUN mkdir /opt/hadoop-3.1/logs
+
+RUN mkdir /hadoop-data
+
+ENV HADOOP_PREFIX=/opt/hadoop-3.1
+ENV HADOOP_CONF_DIR=/etc/hadoop
+ENV MULTIHOMED_NETWORK=1
+ENV PATH $HADOOP_PREFIX/bin/:$PATH
+
+RUN cd /tmp && \
+        wget -q http://mirrors.ukfast.co.uk/sites/ftp.apache.org/spark/spark-2.4.0/spark-2.4.0-bin-without-hadoop.tgz && \
+        tar xzf spark-2.4.0-bin-without-hadoop.tgz -C /opt --owner root --group root --no-same-owner && \
+        rm spark-2.4.0-bin-without-hadoop.tgz
+
+RUN cd / && ln -s /opt/spark-2.4.0-bin-without-hadoop spark
 
 # Spark config
 ENV SPARK_HOME /spark

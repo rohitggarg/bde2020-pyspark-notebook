@@ -6,29 +6,29 @@ RUN apt-get -y update && \
     apt-get install --no-install-recommends -y openjdk-8-jre-headless ca-certificates-java && \
     rm -rf /var/lib/apt/lists/*
 
-ENV HADOOP_URL https://www.apache.org/dist/hadoop/common/hadoop-3.1/hadoop-3.1.tar.gz
-ENV SPARK_URL http://mirrors.ukfast.co.uk/sites/ftp.apache.org/spark/spark-2.4.0/spark-2.4.0-bin-without-hadoop.tgz
+ENV HADOOP_URL https://www.apache.org/dist/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz
+ENV SPARK_URL http://mirrors.ukfast.co.uk/sites/ftp.apache.org/spark/spark-2.4.1/spark-2.4.1-bin-without-hadoop.tgz
 RUN cd /tmp \
     && wget -q "$HADOOP_URL" \
-    && tar xzf hadoop-3.1.tar.gz -C /opt/ \
-    && rm hadoop-3.1.tar.gz
+    && tar xzf hadoop-3.2.0.tar.gz -C /opt/ \
+    && rm hadoop-3.2.0.tar.gz
 
-RUN ln -s /opt/hadoop-3.1/etc/hadoop /etc/hadoop
-RUN mkdir /opt/hadoop-3.1/logs
+RUN ln -s /opt/hadoop-3.2.0/etc/hadoop /etc/hadoop
+RUN mkdir /opt/hadoop-3.2.0/logs
 
 RUN mkdir /hadoop-data
 
-ENV HADOOP_PREFIX=/opt/hadoop-3.1
+ENV HADOOP_PREFIX=/opt/hadoop-3.2.0
 ENV HADOOP_CONF_DIR=/etc/hadoop
 ENV MULTIHOMED_NETWORK=1
 ENV PATH $HADOOP_PREFIX/bin/:$PATH
 
 RUN cd /tmp && \
         wget -q "$SPARK_URL" && \
-        tar xzf spark-2.4.0-bin-without-hadoop.tgz -C /opt && \
-        rm spark-2.4.0-bin-without-hadoop.tgz
+        tar xzf spark-2.4.1-bin-without-hadoop.tgz -C /opt && \
+        rm spark-2.4.1-bin-without-hadoop.tgz
 
-RUN cd / && ln -s /opt/spark-2.4.0-bin-without-hadoop spark
+RUN cd / && ln -s /opt/spark-2.4.1-bin-without-hadoop spark
 
 # Spark config
 ENV SPARK_HOME /spark
